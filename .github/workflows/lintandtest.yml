@@ -1,0 +1,28 @@
+name: Lint and test
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
+        continue-on-error: true
+        with:
+          options: "--check --verbose --target-version py310"
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: |
+         gcc -c -g -std=c99 runtime.c
+         pip install -r requirements.txt
+         python run-tests.py -l fun -c fun tests/fun
+         python run-tests.py -l if -c if tests/lif
+         python run-tests.py -l regalloc -c regalloc tests/regalloc
+         python run-tests.py -l tup -c tup tests/tuples
+         python run-tests.py -l var -c var tests/var
