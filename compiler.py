@@ -76,7 +76,7 @@ class Compiler:
                     new_bod.append(self.shrink_stmt(s))
                 return FunctionDef(name, params, new_bod, dl, returns, comment)
             case _:
-                raise Exception("Wrong call to shrink_def")
+                raise Exception("Wrong call to shrink_def" + "\nAST info 1: " + ast_loc(d))
 
     def shrink(self, p: Module) -> Module:
         match p:
@@ -413,7 +413,7 @@ class Compiler:
                 return (BinOp(atm1, op, atm2), tmps1 + tmps2)
             case _:
                 pprint(e)
-                raise Exception("Missed expression in rco_exp")
+                raise Exception("Missed expression in rco_exp" + "\nAST info 1: " + ast_loc(e))
 
 
     def rco_stmt(self, s: stmt) -> list[stmt]:
@@ -453,7 +453,7 @@ class Compiler:
                 return make_assigns(tmps) + [Assign([Name(var)], atm)]
             case _:
                 pprint(s)
-                raise Exception("Missed statement in rco_stmt")
+                raise Exception("Missed statement in rco_stmt" + "\nAST info 1: " + ast_loc(s))
 
     def remove_complex_operands(self, p: Module) -> Module:
         match p:
@@ -620,7 +620,7 @@ class Compiler:
                 return self.explicate_pred(test, explicate_body, explicate_orelse, basic_blocks)
             case _:
                 pprint(s)
-                raise Exception("Missed statement in explicate_stmt")
+                raise Exception("Missed statement in explicate_stmt" + (("\nAST info 1: " + ast_loc(s)) if isinstance(s, ast.AST) else ""))
 
     def explicate_def(self, df) -> FunctionDef:
         match df:
@@ -632,7 +632,7 @@ class Compiler:
                 basic_blocks[label_name(name + 'start')] = new_body
                 return FunctionDef(name, params, basic_blocks, dl, returns, comment)
             case _:
-                raise Exception("Statement outside of a function definition!")
+                raise Exception("Statement outside of a function definition!" + ("\nAST info 1: " + ast_loc(df)) if isinstance(df, ast.AST) else "")
 
     def explicate_control(self, p):
         match p:
@@ -660,7 +660,7 @@ class Compiler:
                 return Variable(var)
             case _:
                 pprint(e)
-                raise Exception("Missing case in select_arg!")
+                raise Exception("Missing case in select_arg!" + ("\nAST info 1: " + ast_loc(e)) if isinstance(e, ast.AST) else "")
 
     def select_stmt(self, s: stmt, name: str) -> list[instr]:
         match s:
@@ -702,7 +702,11 @@ class Compiler:
                     case Immediate(n):
                         n = n
                     case _:
-                        raise Exception("Index in subscript not an immediate!")
+                        raise Exception("Index in subscript not an immediate!"
+                                        + "\nAST info 1: " + ast_loc(s)
+                                        + " & AST info 2: " + ast_loc(atm1)
+                                        + " & AST info 3: " + ast_loc(atm2)
+                        )
                 return [Instr("movq", [arg1, Reg("r11")]), Instr("movq", [Deref("r11", 8 * (n + 1)), Variable(var)])]
             case Assign([Subscript(atm1, atm2, Store())], atm3):
                 arg1 = self.select_arg(atm1)
@@ -712,7 +716,12 @@ class Compiler:
                     case Immediate(n):
                         n = n
                     case _:
-                        raise Exception("Index in subscript not an immediate!")
+                        raise Exception("Index in subscript not an immediate!"
+                                        + "\nAST info 1: " + ast_loc(s)
+                                        + " & AST info 2: " + ast_loc(atm1)
+                                        + " & AST info 3: " + ast_loc(atm2)
+                                        + " & AST info 4: " + ast_loc(atm3)
+                        )
                 return [Instr("movq", [arg1, Reg("r11")]), Instr("movq", [arg3, Deref("r11", 8 * (n + 1))])]
             case Assign([Name(var)], Allocate(lgth, TupleType(ts))):
                 pointer_mask = 0
@@ -789,7 +798,7 @@ class Compiler:
                 arg = self.select_arg(atm)
                 return [Instr("movq", [arg, Variable(var)])]
             case _:
-                Exception("Missing case in select_stmt")
+                Exception("Missing case in select_stmt" + "\nAST info 1: " + ast_loc(s))
 
     def select_def(self, df: FunctionDef) -> FunctionDef:
         match df:
@@ -826,7 +835,7 @@ class Compiler:
                 result.var_types = df.var_types
                 return result
             case _:
-                raise Exception("THIS IS OUTRAGEOUS")
+                raise Exception("THIS IS OUTRAGEOUS" + (("\nAST info 1: " + ast_loc(df)) if isinstance(df, ast.AST) else ""))
 
     def select_instructions(self, p: Module) -> X86ProgramDefs:
         output = []
@@ -946,7 +955,7 @@ class Compiler:
                 result.used_callee = p.used_callee
                 return result
             case _:
-                raise Exception("THIS IS UNFAIR!")
+                raise Exception("THIS IS UNFAIR!" + (("\nAST info 1: " + ast_loc(p)) if isinstance(p, ast.AST) else ""))
 
     def assign_homes(self, p: X86ProgramDefs) -> X86ProgramDefs:
         output = []

@@ -12,7 +12,11 @@ requirements.installed: requirements.txt
 	echo > requirements.installed
 
 run-tests:
-	$(PYTHON3_10) run-tests.py
+	$(PYTHON3_10) run-tests.py -l var -c var tests/var
+	$(PYTHON3_10) run-tests.py -l regalloc -c regalloc tests/regalloc
+	$(PYTHON3_10) run-tests.py -l lif -c lif tests/lif
+	$(PYTHON3_10) run-tests.py -l tuples -c tuples tests/tuples
+	$(PYTHON3_10) run-tests.py -l fun -c fun tests/fun
 
 mul-div-mod.s: mul-div-mod.c
 	gcc -S mul-div-mod.c
