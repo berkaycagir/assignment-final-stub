@@ -19,7 +19,7 @@ class InterpCfun(InterpCtup):
                 next_label = name + "start"
                 ret = None
                 while True:
-                    r = self.interp_stmts(blocks[utils.label_name(next_label)], new_env)
+                    r = self.interp_stmts(blocks[utils.Label(next_label)], new_env)
                     match r:
                         case utils.Goto(label):
                             next_label = label

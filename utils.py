@@ -3,8 +3,48 @@ from pathlib import Path
 import sys
 import ast
 from dataclasses import dataclass
-from typing import Callable
+from types import NotImplementedType
+from typing import Callable, Dict, List
 from filecmp import cmp
+
+################################################################################
+# Labels
+################################################################################
+LABEL_PREPEND: str = "_" if sys.platform == "darwin" else ""
+
+
+@dataclass(frozen=True)
+class Label:
+    name: str
+
+    def __init__(self, _name: str) -> None:
+        object.__setattr__(self, "name", LABEL_PREPEND + _name)
+
+    def __add__(self, other) -> str | NotImplementedType:
+        if isinstance(other, str):
+            return self.name + other
+        else:
+            return NotImplemented
+
+    def __radd__(self, other) -> str | NotImplementedType:
+        if isinstance(other, str):
+            return other + self.name
+        else:
+            return NotImplemented
+
+    def __str__(self) -> str:
+        return self.name
+
+
+# label_name: Callable[[str], str] = (
+#     (lambda n: "_" + n) if sys.platform == "darwin" else (lambda n: n)
+# )
+
+# def label_name(n: str) -> str:
+#     if sys.platform == "darwin":
+#         return '_' + n
+#     else:
+#         return n
 
 ################################################################################
 # repr for classes in the ast module
@@ -754,7 +794,7 @@ class Begin(ast.expr):
 
 @dataclass
 class GlobalValue(ast.expr):
-    name: str
+    name: Label
 
     def __str__(self):
         return str(self.name)
@@ -912,13 +952,13 @@ block_id = 0
 
 
 def create_block(
-    stmts: list[ast.stmt], basic_blocks: dict[str, list[ast.stmt]]
+    stmts: List[ast.stmt], basic_blocks: Dict[Label, list[ast.stmt]]
 ) -> Goto:
     "stuff statments into a new basic block; return a jump to it"
     global block_id
     label = "block" + str(block_id)
     block_id += 1
-    basic_blocks[label_name(label)] = stmts
+    basic_blocks[Label(label)] = stmts
     return Goto(label)
 
 
@@ -951,17 +991,6 @@ def bool2int(b):
         return 1
     else:
         return 0
-
-
-label_name: Callable[[str], str] = (
-    (lambda n: "_" + n) if sys.platform == "darwin" else (lambda n: n)
-)
-
-# def label_name(n: str) -> str:
-#     if sys.platform == "darwin":
-#         return '_' + n
-#     else:
-#         return n
 
 
 def ast_loc(obj: ast.AST):
