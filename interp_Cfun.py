@@ -23,6 +23,11 @@ class InterpCfun(InterpCtup):
                     match r:
                         case utils.Goto(label):
                             next_label = label
+                        case utils.TailCallHelper(func, args, env):
+                            new_env = env.copy()
+                            for (x, arg) in zip(xs, args):
+                                new_env[x] = arg
+                            next_label = getattr(func, "name") + "start"
                         case ast.Return(retval):
                             ret = retval
                             break
@@ -52,7 +57,10 @@ class InterpCfun(InterpCtup):
             raise Exception("interp_stmts function ended without return")
         match ss[0]:
             case utils.TailCall(func, args):
-                return self.interp_exp(ast.Call(func, args), env)
+                # return self.interp_exp(ast.Call(func, args), env)
+                f = self.interp_exp(func, env)
+                vs = [self.interp_exp(arg, env) for arg in args]
+                return utils.TailCallHelper(f, vs, env)  # type: ignore
             case _:
                 return super().interp_stmts(ss, env)
 

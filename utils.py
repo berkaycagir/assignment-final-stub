@@ -881,6 +881,13 @@ class TailCall(ast.stmt):
         )
 
 
+@dataclass
+class TailCallHelper(ast.stmt):
+    func: ast.expr
+    args: list[ast.expr]
+    env: dict
+
+
 # like a Tuple, but also stores the function's arity
 @dataclass
 class Closure(ast.expr):
