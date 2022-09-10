@@ -31,6 +31,8 @@ class TypeCheckCexam(TypeCheckCfun):
 
     def type_check_exp(self, e, env):
         match e:
+            case utils.AllocateArray(length, typ):  # FIXED
+                return typ
             case ast.List(es, ast.Load()):
                 ts = [self.type_check_exp(e, env) for e in es]
                 elt_ty = ts[0]

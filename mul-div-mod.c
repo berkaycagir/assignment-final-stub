@@ -6,5 +6,10 @@ int main(void) {
 	printf("%ld / %ld = %ld\n", i, j, i / j);
 	printf("%ld %% %ld = %ld\n", i, j, i % j);
 	printf("%ld * %ld = %ld\n", i, j, i * j);
+	printf("%ld << %ld = %ld\n", i, j, i << j);
+	printf("%ld >> %ld = %ld\n", i, j, i >> j);
+	printf("%ld & %ld = %ld\n", i, j, i & j);
+	printf("%ld | %ld = %ld\n", i, j, i | j);
+	printf("%ld ^ %ld = %ld\n", i, j, i ^ j);
 	return 0;
 }

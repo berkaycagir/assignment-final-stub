@@ -713,7 +713,7 @@ void print_vector(int64_t* vector_ptr)
       if (isPointerBit == 1 && is_ptr((int64_t*)*scan_ptr)) {
         print_vector(to_ptr((int64_t*)*scan_ptr));
       } else {
-        printf("%ld", (int64_t)*scan_ptr);
+        printf("%" PRId64, (int64_t)*scan_ptr);
       }
       scan_ptr += 1;
       if (scan_ptr != next_ptr) {

@@ -18,11 +18,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - run: |
-         gcc -c -g -std=c99 runtime.c
-         pip install -r requirements.txt
-         python run-tests.py -l fun -c fun tests/fun
-         python run-tests.py -l if -c if tests/lif
-         python run-tests.py -l regalloc -c regalloc tests/regalloc
-         python run-tests.py -l tup -c tup tests/tuples
-         python run-tests.py -l var -c var tests/var
+      - run: gcc -c -g -std=c99 runtime.c
+      - run: pip install -r requirements.txt
+      - run: python run-tests.py -v -l exam -c exam tests/fun tests/lif tests/regalloc tests/tuples tests/var
+      - run: python run-tests.py -v -l exam -c exam tests/exam

@@ -11,12 +11,11 @@ requirements.installed: requirements.txt
 	pip3 install -r requirements.txt
 	echo > requirements.installed
 
+REGRESSION= tests/var tests/regalloc tests/lif  tests/tuples tests/fun
+
 run-tests:
-	$(PYTHON3_10) run-tests.py -l var -c var tests/var
-	$(PYTHON3_10) run-tests.py -l regalloc -c regalloc tests/regalloc
-	$(PYTHON3_10) run-tests.py -l lif -c lif tests/lif
-	$(PYTHON3_10) run-tests.py -l tuples -c tuples tests/tuples
-	$(PYTHON3_10) run-tests.py -l fun -c fun tests/fun
+	$(PYTHON3_10) run-tests.py -v -l fun -c fun $(REGRESSION)
+	$(PYTHON3_10) run-tests.py -v -l exam -c exam tests/exam
 
 mul-div-mod.s: mul-div-mod.c
 	gcc -S mul-div-mod.c
@@ -25,10 +24,13 @@ mul-div-mod: mul-div-mod.c
 	gcc -o mul-div-mod mul-div-mod.c
 
 create-tests:
-	cd tests/exam ; \
-	for f in *.py ; do \
-		bf=`basename $$f .py` ; \
-		sed -ne 's/#in=//w'$$bf.in -e 's/#golden=//w'$$bf.golden $$f ; \
+	for d in exam exam-2 ; do \
+		cd tests/$$d ; \
+		for f in *.py ; do \
+			bf=`basename $$f .py` ; \
+			sed -ne 's/#in=//w'$$bf.in -e 's/#golden=//w'$$bf.golden $$f ; \
+		done ; \
+		cd ../.. ; \
 	done
 
 ## checks minimum requirements
@@ -36,6 +38,7 @@ create-tests:
 ## * all tests passed by the compiler
 exam-tests:
 	$(PYTHON3_10) run-exam-tests.py
+	$(PYTHON3_10) run-tests.py -v -l exam -c exam tests/exam-2
 
 clean:
 	$(RM) tests/*/*.s

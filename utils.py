@@ -7,6 +7,12 @@ from types import NotImplementedType
 from typing import Callable, Dict, List
 from filecmp import cmp
 
+MAX_INT_64 = 9223372036854775807
+MIN_INT_64 = -9223372036854775808
+
+MAX_INT_32 = 4294967295
+MIN_INT_32 = -4294967296
+
 ################################################################################
 # Labels
 ################################################################################
@@ -1001,16 +1007,17 @@ def bool2int(b):
 
 
 def ast_loc(obj: ast.AST):
-    return (
-        "beginning line: "
-        + repr(obj.lineno)
-        + " ending line: "
-        + repr(obj.end_lineno)
-        + " beginning column offset: "
-        + repr(obj.col_offset)
-        + " ending column offset: "
-        + repr(obj.end_col_offset)
-    )
+    return ""
+    # return (
+    #     "beginning line: "
+    #     + repr(obj.lineno)
+    #     + " ending line: "
+    #     + repr(obj.end_lineno)
+    #     + " beginning column offset: "
+    #     + repr(obj.col_offset)
+    #     + " ending column offset: "
+    #     + repr(obj.end_col_offset)
+    # )
 
 
 tracing = False
@@ -1414,7 +1421,8 @@ def run_tests(
         + lang
     )
 
+import glob
 
 def get_all_tests_for(path: Path):
     """Collect all the test program file names for language `lang`."""
-    return list(path.glob("*.py"))
+    return list(glob.glob(path + "/*.py"))

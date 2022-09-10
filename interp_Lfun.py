@@ -1,4 +1,5 @@
 import ast
+from typing import Optional
 import utils
 from interp_Ltup import InterpLtup
 
@@ -29,31 +30,48 @@ class InterpLfun(InterpLtup):
 
     def interp_exp(self, e, env):
         match e:
-            case ast.Call(ast.Name(f), args) if (f == "input_int") or (f == "len") or (
-                f == "print"
-            ):
+            case ast.Call(ast.Name(f), args) \
+                if (f == "input_int") or (f == "len") or (f == "print"):
                 return super().interp_exp(e, env)
             case ast.Call(func, args):
                 f = self.interp_exp(func, env)
                 vs = [self.interp_exp(arg, env) for arg in args]
-                return self.apply_fun(f, vs, e)
+                r = self.apply_fun(f, vs, e)
+                match r:
+                    case ast.Return(v):
+                        return v
+                    case ast.Break() | ast.Continue():
+                        raise Exception("illegal return from call: " + repr(r))
+                    case _:
+                        return r
             case utils.FunRef(id, arity):
                 return env[id]
             case _:
                 return super().interp_exp(e, env)
 
-    def interp_stmts(self, ss, env):
+    def interp_stmts(self, ss, env) -> Optional[ast.Continue | ast.Break | ast.Return]:
         if len(ss) == 0:
             return
         match ss[0]:
             case ast.Return(value):
-                return self.interp_exp(value, env)
+                return ast.Return(self.interp_exp(value, env))
             case ast.While(test, body, []):
                 while self.interp_exp(test, env):
                     r = self.interp_stmts(body, env)
-                    if r is not None:
-                        return r
+                    if r is None:
+                        continue
+                    match r:
+                        case ast.Continue():
+                            continue
+                        case ast.Break():
+                            break
+                        case _:
+                            return r
                 return self.interp_stmts(ss[1:], env)
+            case ast.Continue():
+                return ast.Continue()
+            case ast.Break():
+                return ast.Break()
             case ast.FunctionDef(name, params, bod, dl, returns, comment):
                 if isinstance(params, ast.arguments):
                     ps = [p.arg for p in params.args]

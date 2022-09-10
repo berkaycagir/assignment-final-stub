@@ -7,8 +7,16 @@ class InterpLexam(InterpLfun):
 
   def interp_exp(self, e, env):
     match e:
-      case List(es, Load()):
-        return [self.interp_exp(e, env) for e in es]
+      case AllocateArray(length, typ):  # FIXED
+          length = self.interp_exp(length, env)
+          return [None] * length
+      case ast.List(es, ast.Load()):
+          return [self.interp_exp(e, env) for e in es]
+      case Subscript(tup, Slice(lower, upper), Load()):
+          t = self.interp_exp(tup, env)
+          l = self.interp_exp(lower, env)
+          u = self.interp_exp(upper, env)
+          return t[l:u]
       case BinOp(left, Mult(), right):
           l = self.interp_exp(left, env); r = self.interp_exp(right, env)
           return l * r
@@ -20,6 +28,21 @@ class InterpLexam(InterpLfun):
           l = self.interp_exp(left, env); r = self.interp_exp(right, env)
           ar = abs(l) % abs(r)
           return ar if l >=0 else -ar
+      case BinOp(left, LShift(), right):
+          l = self.interp_exp(left, env); r = self.interp_exp(right,env)
+          return l << r
+      case BinOp(left, RShift(), right):
+          l = self.interp_exp(left, env); r = self.interp_exp(right,env)
+          return l >> r
+      case BinOp(left, BitOr(), right):
+          l = self.interp_exp(left, env); r = self.interp_exp(right, env)
+          return l | r
+      case BinOp(left, BitXor(), right):
+          l = self.interp_exp(left, env); r = self.interp_exp(right,env)
+          return l ^ r
+      case BinOp(left, BitAnd(), right):
+          l = self.interp_exp(left, env); r = self.interp_exp(right,env)
+          return l & r
       case Call(Name('array_len'), [tup]):
         t = self.interp_exp(tup, env)
         return len(t)

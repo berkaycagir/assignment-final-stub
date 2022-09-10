@@ -1,5 +1,5 @@
 	.section	__TEXT,__text,regular,pure_instructions
-	.build_version macos, 12, 0	sdk_version 12, 1
+	.build_version macos, 12, 0	sdk_version 12, 3
 	.globl	_main                           ## -- Begin function main
 	.p2align	4, 0x90
 _main:                                  ## @main
@@ -46,6 +46,47 @@ _main:                                  ## @main
 	leaq	L_.str.3(%rip), %rdi
 	movb	$0, %al
 	callq	_printf
+	movq	-16(%rbp), %rsi
+	movq	-24(%rbp), %rdx
+	movq	-16(%rbp), %rax
+	movq	-24(%rbp), %rcx
+                                        ## kill: def $cl killed $rcx
+	shlq	%cl, %rax
+	movq	%rax, %rcx
+	leaq	L_.str.4(%rip), %rdi
+	movb	$0, %al
+	callq	_printf
+	movq	-16(%rbp), %rsi
+	movq	-24(%rbp), %rdx
+	movq	-16(%rbp), %rax
+	movq	-24(%rbp), %rcx
+                                        ## kill: def $cl killed $rcx
+	sarq	%cl, %rax
+	movq	%rax, %rcx
+	leaq	L_.str.5(%rip), %rdi
+	movb	$0, %al
+	callq	_printf
+	movq	-16(%rbp), %rsi
+	movq	-24(%rbp), %rdx
+	movq	-16(%rbp), %rcx
+	andq	-24(%rbp), %rcx
+	leaq	L_.str.6(%rip), %rdi
+	movb	$0, %al
+	callq	_printf
+	movq	-16(%rbp), %rsi
+	movq	-24(%rbp), %rdx
+	movq	-16(%rbp), %rcx
+	orq	-24(%rbp), %rcx
+	leaq	L_.str.7(%rip), %rdi
+	movb	$0, %al
+	callq	_printf
+	movq	-16(%rbp), %rsi
+	movq	-24(%rbp), %rdx
+	movq	-16(%rbp), %rcx
+	xorq	-24(%rbp), %rcx
+	leaq	L_.str.8(%rip), %rdi
+	movb	$0, %al
+	callq	_printf
 	xorl	%eax, %eax
 	addq	$48, %rsp
 	popq	%rbp
@@ -64,5 +105,20 @@ L_.str.2:                               ## @.str.2
 
 L_.str.3:                               ## @.str.3
 	.asciz	"%ld * %ld = %ld\n"
+
+L_.str.4:                               ## @.str.4
+	.asciz	"%ld << %ld = %ld\n"
+
+L_.str.5:                               ## @.str.5
+	.asciz	"%ld >> %ld = %ld\n"
+
+L_.str.6:                               ## @.str.6
+	.asciz	"%ld & %ld = %ld\n"
+
+L_.str.7:                               ## @.str.7
+	.asciz	"%ld | %ld = %ld\n"
+
+L_.str.8:                               ## @.str.8
+	.asciz	"%ld ^ %ld = %ld\n"
 
 .subsections_via_symbols

@@ -14,16 +14,17 @@ compiler = CompilerLexam()
 if False:
     enable_tracing()
 
-test_suites = ['exam', 'mytests']
+test_root = "tests/"
+test_suites = ["exam-2", "exam", "mytests"]
 
-if all(validate_tests(t, InterpLexam().interp) for t in test_suites):
+if all(validate_tests(test_root + t, "exam", InterpLexam().interp) for t in test_suites):
     print("Congratulations, the interpreter verifies all tests!")
 else:
     print("The interpreter failed on one or more tests.")
 
 for test_suite in test_suites:
-    run_tests(test_suite, compiler, "exam",
-        TypeCheckLexam().type_check,
-        InterpLexam().interp,
-        TypeCheckCexam().type_check,
-        InterpCexam().interp)
+    run_tests(test_suite, "exam", compiler, "exam",
+        type_check_P= TypeCheckLexam().type_check,
+        interp_P= InterpLexam().interp,
+        type_check_C= TypeCheckCexam().type_check,
+        interp_C= InterpCexam().interp)
